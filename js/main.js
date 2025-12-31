@@ -18,7 +18,8 @@
         exportPdfBtn: null,
         exportImageBtn: null,
         themeToggle: null,
-        previewPanel: null
+        previewPanel: null,
+        globalThemeToggle: null
     };
 
     /**
@@ -33,6 +34,10 @@
         elements.exportImageBtn = document.getElementById('exportImageBtn');
         elements.themeToggle = document.getElementById('themeToggle');
         elements.previewPanel = document.querySelector('.preview-panel');
+        elements.globalThemeToggle = document.getElementById('globalThemeToggle');
+
+        // 初始化全局主题
+        initGlobalTheme();
 
         // 配置 marked
         configureMarked();
@@ -45,6 +50,9 @@
 
         // 绑定主题切换
         bindThemeToggle();
+
+        // 绑定全局主题切换
+        bindGlobalThemeToggle();
 
         // 绑定快捷键
         bindShortcuts();
@@ -196,7 +204,89 @@
     }
 
     /**
-     * 绑定主题切换
+     * 初始化全局主题
+     */
+    function initGlobalTheme() {
+        // 从本地存储读取主题偏好
+        const savedTheme = localStorage.getItem('markdown_converter_theme');
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        
+        // 默认使用夜间模式（当前样式）
+        const theme = savedTheme || (prefersDark ? 'dark' : 'dark');
+        document.documentElement.setAttribute('data-theme', theme);
+        
+        // 更新 highlight.js 主题
+        updateHighlightTheme(theme);
+    }
+
+    /**
+     * 更新 highlight.js 主题
+     */
+    function updateHighlightTheme(theme) {
+        const darkTheme = document.querySelector('link[href*="github-dark"]');
+        const lightTheme = document.getElementById('highlight-light-theme');
+        
+        if (theme === 'light') {
+            if (darkTheme) darkTheme.disabled = true;
+            if (lightTheme) {
+                lightTheme.disabled = false;
+                lightTheme.removeAttribute('media');
+            }
+        } else {
+            if (darkTheme) darkTheme.disabled = false;
+            if (lightTheme) {
+                lightTheme.disabled = true;
+                lightTheme.setAttribute('media', 'print');
+            }
+        }
+    }
+
+    /**
+     * 绑定全局主题切换
+     */
+    function bindGlobalThemeToggle() {
+        if (elements.globalThemeToggle) {
+            elements.globalThemeToggle.addEventListener('click', function() {
+                const currentTheme = document.documentElement.getAttribute('data-theme') || 'dark';
+                const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+                
+                // 切换主题
+                document.documentElement.setAttribute('data-theme', newTheme);
+                
+                // 保存到本地存储
+                localStorage.setItem('markdown_converter_theme', newTheme);
+                
+                // 更新 highlight.js 主题
+                updateHighlightTheme(newTheme);
+                
+                // 重新应用代码高亮
+                if (elements.previewContent) {
+                    elements.previewContent.querySelectorAll('pre code').forEach((block) => {
+                        if (block.classList.contains('hljs')) {
+                            const code = block.textContent;
+                            const lang = Array.from(block.classList)
+                                .find(cls => cls.startsWith('language-') || (cls !== 'hljs' && !cls.startsWith('hljs-')))
+                                ?.replace('language-', '');
+                            
+                            block.innerHTML = code;
+                            if (lang && hljs.getLanguage(lang)) {
+                                try {
+                                    hljs.highlightElement(block);
+                                } catch (e) {
+                                    hljs.highlightAuto(block);
+                                }
+                            } else {
+                                hljs.highlightAuto(block);
+                            }
+                        }
+                    });
+                }
+            });
+        }
+    }
+
+    /**
+     * 绑定预览主题切换
      */
     function bindThemeToggle() {
         if (elements.themeToggle && elements.previewPanel) {
@@ -208,6 +298,7 @@
                     elements.previewPanel.querySelector('.preview-wrapper').style.background = '#ffffff';
                 } else {
                     elements.previewPanel.classList.remove('preview-light');
+                    const globalTheme = document.documentElement.getAttribute('data-theme') || 'dark';
                     elements.previewPanel.querySelector('.preview-wrapper').style.background = '';
                 }
             });

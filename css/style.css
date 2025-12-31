@@ -3,7 +3,7 @@
    现代简洁风格设计
    ======================================== */
 
-/* CSS Variables */
+/* CSS Variables - 夜间模式（默认） */
 :root {
     /* 主色调 - 深蓝绿渐变 */
     --primary-gradient: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
@@ -21,7 +21,7 @@
     --md-accent-light: #60a5fa;
     --md-accent-dark: #2563eb;
     
-    /* 中性色 */
+    /* 中性色 - 夜间模式 */
     --bg-primary: #0a0f14;
     --bg-secondary: #121a22;
     --bg-tertiary: #1a252f;
@@ -54,6 +54,28 @@
     /* 字体 */
     --font-sans: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+}
+
+/* 日间模式 */
+[data-theme="light"] {
+    /* 中性色 - 日间模式 */
+    --bg-primary: #f5f7fa;
+    --bg-secondary: #ffffff;
+    --bg-tertiary: #f1f5f9;
+    --bg-card: #ffffff;
+    
+    --text-primary: #1a202c;
+    --text-secondary: #4a5568;
+    --text-muted: #718096;
+    
+    --border-color: rgba(0, 0, 0, 0.08);
+    --border-light: rgba(0, 0, 0, 0.12);
+    
+    /* 阴影 - 日间模式 */
+    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.1);
+    --shadow-md: 0 4px 20px rgba(0, 0, 0, 0.15);
+    --shadow-lg: 0 8px 40px rgba(0, 0, 0, 0.2);
+    --shadow-glow: 0 0 30px rgba(255, 107, 107, 0.2);
 }
 
 /* Reset & Base */
@@ -91,6 +113,15 @@ body::before {
         radial-gradient(ellipse at 50% 50%, rgba(32, 58, 67, 0.1) 0%, transparent 70%);
     pointer-events: none;
     z-index: -1;
+    transition: opacity var(--transition-slow);
+}
+
+[data-theme="light"] body::before {
+    background: 
+        radial-gradient(ellipse at 20% 20%, rgba(59, 130, 246, 0.05) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 80%, rgba(255, 107, 107, 0.03) 0%, transparent 50%),
+        radial-gradient(ellipse at 50% 50%, rgba(59, 130, 246, 0.04) 0%, transparent 70%);
+    opacity: 0.5;
 }
 
 /* Container */
@@ -108,6 +139,15 @@ body::before {
     text-align: center;
     padding: 2rem 0 1.5rem;
     animation: fadeInDown 0.6s ease;
+    position: relative;
+}
+
+.header-content {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    position: relative;
 }
 
 .logo {
@@ -115,7 +155,75 @@ body::before {
     align-items: center;
     justify-content: center;
     gap: 0.75rem;
-    margin-bottom: 0.5rem;
+    margin-bottom: 0;
+}
+
+/* 主题切换按钮 */
+.theme-toggle-btn {
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all var(--transition-normal);
+    padding: 0;
+}
+
+.theme-toggle-btn:hover {
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+    border-color: var(--border-light);
+    transform: translateY(-50%) scale(1.05);
+}
+
+.theme-toggle-btn:active {
+    transform: translateY(-50%) scale(0.95);
+}
+
+.theme-icon {
+    width: 20px;
+    height: 20px;
+    transition: opacity var(--transition-normal), transform var(--transition-normal);
+}
+
+.theme-icon.moon-icon {
+    position: absolute;
+    opacity: 0;
+    transform: rotate(90deg);
+}
+
+.theme-icon.sun-icon {
+    opacity: 1;
+    transform: rotate(0deg);
+}
+
+[data-theme="light"] .theme-icon.moon-icon {
+    opacity: 0;
+    transform: rotate(-90deg);
+}
+
+[data-theme="light"] .theme-icon.sun-icon {
+    opacity: 1;
+    transform: rotate(0deg);
+}
+
+[data-theme="dark"] .theme-icon.moon-icon {
+    opacity: 1;
+    transform: rotate(0deg);
+}
+
+[data-theme="dark"] .theme-icon.sun-icon {
+    opacity: 0;
+    transform: rotate(90deg);
 }
 
 .logo-icon {
@@ -991,6 +1099,17 @@ kbd {
     
     .logo h1 {
         font-size: 1.5rem;
+    }
+    
+    .header-content {
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .theme-toggle-btn {
+        position: static;
+        transform: none;
+        align-self: flex-end;
     }
     
     .panel-header {
