@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Markdown 转换器 - PDF & 长图片</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Noto+Sans+SC:wght@300;400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- Highlight.js -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" id="highlight-light-theme" media="print">
+    
+    <!-- KaTeX for Math Rendering -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    
+    <!-- Custom Styles -->
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay hidden">
+        <div class="loading-spinner">
+            <div class="spinner"></div>
+            <p class="loading-text">正在转换中...</p>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast hidden"></div>
+
+    <!-- Main Container -->
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="logo">
+                <svg class="logo-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                    <polyline points="14 2 14 8 20 8"></polyline>
+                    <line x1="16" y1="13" x2="8" y2="13"></line>
+                    <line x1="16" y1="17" x2="8" y2="17"></line>
+                    <polyline points="10 9 9 9 8 9"></polyline>
+                </svg>
+                <h1>Markdown 转换器</h1>
+            </div>
+            <p class="subtitle">轻松将 Markdown 转换为 PDF 和长图片</p>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Editor Panel -->
+            <section class="panel editor-panel">
+                <div class="panel-header">
+                    <h2>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                        </svg>
+                        编辑器
+                    </h2>
+                    <div class="panel-actions">
+                        <label class="upload-btn" for="fileInput">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                <polyline points="17 8 12 3 7 8"></polyline>
+                                <line x1="12" y1="3" x2="12" y2="15"></line>
+                            </svg>
+                            上传文件
+                        </label>
+                        <input type="file" id="fileInput" accept=".md,.markdown,.txt" hidden>
+                        <button class="clear-btn" id="clearBtn">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="3 6 5 6 21 6"></polyline>
+                                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                            </svg>
+                            清空
+                        </button>
+                    </div>
+                </div>
+                <div class="editor-wrapper" id="dropZone">
+                    <textarea id="markdownInput"># Markdown 转换器使用指南
+
+欢迎使用 Markdown 转换器！这是一个功能强大的工具，可以将 Markdown 文档转换为 PDF 和长图片。
+
+## 功能特性
+
+### 文本格式
+
+支持 **粗体文本**、*斜体文本*、~~删除线~~ 和 `行内代码`。
+
+### 标题层级
+
+# 一级标题
+## 二级标题
+### 三级标题
+#### 四级标题
+
+### 列表
+
+**无序列表：**
+- 项目一
+- 项目二
+  - 子项目 2.1
+  - 子项目 2.2
+- 项目三
+
+**有序列表：**
+1. 第一项
+2. 第二项
+3. 第三项
+
+### 引用
+
+> 这是一段引用文字
+> 
+> 可以包含多行内容
+> 
+> 非常适合引用他人的话语或重要说明
+
+### 代码块
+
+支持多种编程语言的语法高亮：
+
+```javascript
+function greet(name) {
+    console.log(`Hello, ${name}!`);
+    return `Welcome to Markdown Converter!`;
+}
+
+greet('World');
+```
+
+```python
+def fibonacci(n):
+    """计算斐波那契数列"""
+    if n <= 1:
+        return n
+    return fibonacci(n-1) + fibonacci(n-2)
+
+# 输出前10个斐波那契数
+for i in range(10):
+    print(f"F({i}) = {fibonacci(i)}")
+```
+
+### 数学公式
+
+**行内公式：** 爱因斯坦的质能方程 $E = mc^2$ 是物理学的基础。
+
+**块级公式：**
+
+$$
+\int_{-\infty}^{\infty} e^{-x^2} dx = \sqrt{\pi}
+$$
+
+二次方程的求根公式：
+
+$$
+x = \frac{-b \pm \sqrt{b^2 - 4ac}}{2a}
+$$
+
+矩阵示例：
+
+$$
+\begin{pmatrix}
+a & b \\
+c & d
+\end{pmatrix}
+\begin{pmatrix}
+x \\
+y
+\end{pmatrix}
+=
+\begin{pmatrix}
+ax + by \\
+cx + dy
+\end{pmatrix}
+$$
+
+### 表格
+
+| 功能 | 支持 | 说明 |
+|------|:----:|------|
+| PDF 导出 | ✅ | 支持分页，适合打印 |
+| 图片导出 | ✅ | 高清长图片，适合分享 |
+| 数学公式 | ✅ | 支持 LaTeX 语法 |
+| 代码高亮 | ✅ | 支持多种编程语言 |
+| 实时预览 | ✅ | 编辑时即时查看效果 |
+
+### 链接和图片
+
+[访问 GitHub](https://github.com) 了解更多信息。
+
+### 分隔线
+
+---
+
+## 使用技巧
+
+1. **快捷键：**
+   - `Ctrl + S` 保存内容到本地
+   - `Ctrl + P` 导出 PDF
+   - `Ctrl + I` 导出图片
+
+2. **文件上传：**
+   - 点击"上传文件"按钮选择文件
+   - 或直接拖拽 `.md` 文件到编辑器区域
+
+3. **主题切换：**
+   - 点击预览区的主题切换按钮
+   - 在深色和浅色主题间切换
+
+4. **导出选项：**
+   - PDF：适合打印和正式文档
+   - 图片：可选择 1x、2x、3x 质量
+   - 图片质量越高，文件越大，但更清晰
+
+## 开始使用
+
+删除这段示例文本，开始编写你的 Markdown 文档吧！
+
+---
+
+*提示：所有内容会自动保存到浏览器本地存储，刷新页面不会丢失。*</textarea>
+                    <div class="drop-hint hidden" id="dropHint">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                            <polyline points="17 8 12 3 7 8"></polyline>
+                            <line x1="12" y1="3" x2="12" y2="15"></line>
+                        </svg>
+                        <p>释放以上传文件</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Preview Panel -->
+            <section class="panel preview-panel">
+                <div class="panel-header">
+                    <h2>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                            <circle cx="12" cy="12" r="3"></circle>
+                        </svg>
+                        预览
+                    </h2>
+                    <div class="panel-actions">
+                        <button class="theme-toggle" id="themeToggle" title="切换预览主题">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="5"></circle>
+                                <line x1="12" y1="1" x2="12" y2="3"></line>
+                                <line x1="12" y1="21" x2="12" y2="23"></line>
+                                <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                                <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                                <line x1="1" y1="12" x2="3" y2="12"></line>
+                                <line x1="21" y1="12" x2="23" y2="12"></line>
+                                <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                                <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                <div class="preview-wrapper">
+                    <div id="previewContent" class="markdown-body"></div>
+                </div>
+            </section>
+
+            <!-- Actions Panel -->
+            <section class="panel actions-panel">
+                <div class="panel-header">
+                    <h2>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                            <polyline points="7 10 12 15 17 10"></polyline>
+                            <line x1="12" y1="15" x2="12" y2="3"></line>
+                        </svg>
+                        导出
+                    </h2>
+                </div>
+                <div class="actions-content">
+                    <div class="export-section">
+                        <h3>导出为 PDF</h3>
+                        <p>生成可打印的 PDF 文档，支持分页</p>
+                        <button class="export-btn pdf-btn" id="exportPdfBtn">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                <polyline points="14 2 14 8 20 8"></polyline>
+                                <line x1="16" y1="13" x2="8" y2="13"></line>
+                                <line x1="16" y1="17" x2="8" y2="17"></line>
+                                <polyline points="10 9 9 9 8 9"></polyline>
+                            </svg>
+                            导出 PDF
+                        </button>
+                    </div>
+                    
+                    <div class="export-section">
+                        <h3>导出为长图片</h3>
+                        <p>生成高清长图片，适合分享到社交媒体</p>
+                        <div class="quality-selector">
+                            <label for="imageQuality">图片质量：</label>
+                            <select id="imageQuality">
+                                <option value="1">标准 (1x)</option>
+                                <option value="2" selected>高清 (2x)</option>
+                                <option value="3">超清 (3x)</option>
+                            </select>
+                        </div>
+                        <button class="export-btn image-btn" id="exportImageBtn">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                                <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                                <polyline points="21 15 16 10 5 21"></polyline>
+                            </svg>
+                            导出图片
+                        </button>
+                    </div>
+
+                    <div class="tips-section">
+                        <h3>快捷键</h3>
+                        <ul class="shortcuts-list">
+                            <li><kbd>Ctrl</kbd> + <kbd>S</kbd> 保存到本地</li>
+                            <li><kbd>Ctrl</kbd> + <kbd>P</kbd> 导出 PDF</li>
+                            <li><kbd>Ctrl</kbd> + <kbd>I</kbd> 导出图片</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>使用 <a href="https://marked.js.org/" target="_blank">marked.js</a> 和 <a href="https://html2canvas.hertzen.com/" target="_blank">html2canvas</a> 构建</p>
+        </footer>
+    </div>
+
+    <!-- Third-party Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.0/marked.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    
+    <!-- Application Scripts -->
+    <script src="js/editor.js"></script>
+    <script src="js/converter.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>
+

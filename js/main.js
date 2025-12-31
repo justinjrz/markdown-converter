@@ -1,0 +1,257 @@
+/**
+ * Main Application Entry
+ * 主应用入口 - 协调各模块工作
+ */
+
+(function() {
+    'use strict';
+
+    // 应用状态
+    const state = {
+        renderedHTML: '',
+        isPreviewLight: false
+    };
+
+    // DOM 元素
+    let elements = {
+        previewContent: null,
+        exportPdfBtn: null,
+        exportImageBtn: null,
+        themeToggle: null,
+        previewPanel: null
+    };
+
+    /**
+     * 初始化应用
+     */
+    function init() {
+        console.log('App: 正在初始化...');
+
+        // 获取 DOM 元素
+        elements.previewContent = document.getElementById('previewContent');
+        elements.exportPdfBtn = document.getElementById('exportPdfBtn');
+        elements.exportImageBtn = document.getElementById('exportImageBtn');
+        elements.themeToggle = document.getElementById('themeToggle');
+        elements.previewPanel = document.querySelector('.preview-panel');
+
+        // 配置 marked
+        configureMarked();
+
+        // 初始化编辑器
+        Editor.init(handleContentChange);
+
+        // 绑定导出按钮事件
+        bindExportEvents();
+
+        // 绑定主题切换
+        bindThemeToggle();
+
+        // 绑定快捷键
+        bindShortcuts();
+
+        console.log('App: 初始化完成');
+    }
+
+    /**
+     * 配置 Marked.js
+     */
+    function configureMarked() {
+        // 配置 marked
+        marked.setOptions({
+            breaks: true,
+            gfm: true,
+            headerIds: true,
+            mangle: false,
+            highlight: function(code, lang) {
+                if (lang && hljs.getLanguage(lang)) {
+                    try {
+                        return hljs.highlight(code, { language: lang }).value;
+                    } catch (e) {
+                        console.warn('Highlight error:', e);
+                    }
+                }
+                return hljs.highlightAuto(code).value;
+            }
+        });
+
+        // 配置数学公式渲染（支持 $...$ 和 $$...$$）
+        const renderer = new marked.Renderer();
+        
+        // 处理行内数学公式 $...$
+        const originalParagraph = renderer.paragraph;
+        renderer.paragraph = function(text) {
+            // 检查是否包含数学公式
+            if (text.includes('$') && text.match(/\$[^$]+\$/)) {
+                return `<p>${text}</p>`;
+            }
+            return originalParagraph.call(this, text);
+        };
+
+        // 处理块级数学公式 $$...$$
+        const originalCodespan = renderer.codespan;
+        renderer.codespan = function(code) {
+            // 如果代码以 $$ 开头和结尾，则作为数学公式处理
+            if (code.startsWith('$$') && code.endsWith('$$') && code.length > 4) {
+                return `<span class="math-inline">${code}</span>`;
+            }
+            return originalCodespan.call(this, code);
+        };
+
+        marked.setOptions({ renderer });
+    }
+
+    /**
+     * 处理内容变化
+     * @param {string} markdown 
+     */
+    function handleContentChange(markdown) {
+        if (!elements.previewContent) return;
+
+        try {
+            // 预处理数学公式：将 $$...$$ 转换为特殊标记，避免被 marked 解析
+            let processedMarkdown = markdown || '';
+            
+            // 处理块级公式 $$...$$（需要先处理，避免与行内公式冲突）
+            const blockMathRegex = /\$\$([\s\S]*?)\$\$/g;
+            const blockMathPlaceholders = [];
+            processedMarkdown = processedMarkdown.replace(blockMathRegex, (match, formula) => {
+                const index = blockMathPlaceholders.length;
+                // 使用 HTML 注释作为占位符，marked 不会改变它
+                const placeholder = `<!-- MATH_BLOCK_${index} -->`;
+                blockMathPlaceholders.push(formula.trim());
+                return '\n\n' + placeholder + '\n\n';
+            });
+
+            // 解析 Markdown
+            let html = marked.parse(processedMarkdown);
+            
+            // 恢复块级公式并渲染（使用 HTML 注释占位符）
+            blockMathPlaceholders.forEach((formula, index) => {
+                try {
+                    const rendered = katex.renderToString(formula, {
+                        displayMode: true,
+                        throwOnError: false
+                    });
+                    // HTML 注释在 marked 解析后保持不变，直接替换
+                    html = html.replace(`<!-- MATH_BLOCK_${index} -->`, rendered);
+                } catch (e) {
+                    console.warn('Math rendering error:', e);
+                    html = html.replace(`<!-- MATH_BLOCK_${index} -->`, `<div class="math-error">$$${formula}$$</div>`);
+                }
+            });
+
+            // 处理行内公式 $...$（在块级公式之后处理，避免冲突）
+            const inlineMathRegex = /\$([^$\n]+?)\$/g;
+            html = html.replace(inlineMathRegex, (match, formula) => {
+                // 跳过已经被占位符替换的内容
+                if (match.includes('math-placeholder')) {
+                    return match;
+                }
+                try {
+                    return katex.renderToString(formula.trim(), {
+                        displayMode: false,
+                        throwOnError: false
+                    });
+                } catch (e) {
+                    console.warn('Inline math rendering error:', e);
+                    return match;
+                }
+            });
+            
+            state.renderedHTML = html;
+            
+            // 更新预览
+            elements.previewContent.innerHTML = html;
+
+            // 对新添加的代码块应用高亮
+            elements.previewContent.querySelectorAll('pre code').forEach((block) => {
+                if (!block.classList.contains('hljs')) {
+                    hljs.highlightElement(block);
+                }
+            });
+        } catch (error) {
+            console.error('Markdown 解析错误:', error);
+            elements.previewContent.innerHTML = '<p style="color: #f56565;">Markdown 解析错误</p>';
+        }
+    }
+
+    /**
+     * 绑定导出按钮事件
+     */
+    function bindExportEvents() {
+        // PDF 导出
+        if (elements.exportPdfBtn) {
+            elements.exportPdfBtn.addEventListener('click', function() {
+                Converter.exportToPDF(state.renderedHTML);
+            });
+        }
+
+        // 图片导出
+        if (elements.exportImageBtn) {
+            elements.exportImageBtn.addEventListener('click', function() {
+                const quality = Converter.getImageQuality();
+                Converter.exportToImage(state.renderedHTML, quality);
+            });
+        }
+    }
+
+    /**
+     * 绑定主题切换
+     */
+    function bindThemeToggle() {
+        if (elements.themeToggle && elements.previewPanel) {
+            elements.themeToggle.addEventListener('click', function() {
+                state.isPreviewLight = !state.isPreviewLight;
+                
+                if (state.isPreviewLight) {
+                    elements.previewPanel.classList.add('preview-light');
+                    elements.previewPanel.querySelector('.preview-wrapper').style.background = '#ffffff';
+                } else {
+                    elements.previewPanel.classList.remove('preview-light');
+                    elements.previewPanel.querySelector('.preview-wrapper').style.background = '';
+                }
+            });
+        }
+    }
+
+    /**
+     * 绑定快捷键
+     */
+    function bindShortcuts() {
+        document.addEventListener('keydown', function(e) {
+            // Ctrl/Cmd + P: 导出 PDF
+            if ((e.ctrlKey || e.metaKey) && e.key === 'p') {
+                e.preventDefault();
+                Converter.exportToPDF(state.renderedHTML);
+            }
+
+            // Ctrl/Cmd + I: 导出图片
+            if ((e.ctrlKey || e.metaKey) && e.key === 'i') {
+                e.preventDefault();
+                const quality = Converter.getImageQuality();
+                Converter.exportToImage(state.renderedHTML, quality);
+            }
+        });
+    }
+
+    /**
+     * 获取当前渲染的 HTML
+     * @returns {string}
+     */
+    function getRenderedHTML() {
+        return state.renderedHTML;
+    }
+
+    // DOM 加载完成后初始化
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+    } else {
+        init();
+    }
+
+    // 导出到全局（可选）
+    window.App = {
+        getRenderedHTML
+    };
+})();
+
