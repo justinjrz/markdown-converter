@@ -1104,22 +1104,34 @@ kbd {
 @media (max-width: 768px) {
     .container {
         padding: 1rem;
+        padding-bottom: calc(64px + 1rem); /* tab bar height + extra breathing room */
     }
     
     .main-content {
         grid-template-columns: 1fr;
-        gap: 1rem;
+        gap: 0;
         max-height: none;
     }
     
+    /* Each panel fills available height between header and tab bar */
     .panel {
-        max-height: 50vh;
+        max-height: none;
+        height: calc(100vh - 160px - 64px); /* viewport - approx header - tab bar */
+        min-height: 0;
+        border-radius: var(--radius-md);
     }
     
     .editor-panel,
-    .preview-panel {
-        min-height: 400px;
-        max-height: 50vh;
+    .preview-panel,
+    .actions-panel {
+        min-height: 0;
+        max-height: none;
+        height: calc(100vh - 160px - 64px);
+    }
+    
+    /* Tab switching: hide inactive panels */
+    .panel.tab-hidden {
+        display: none !important;
     }
     
     .actions-content {
@@ -1152,6 +1164,80 @@ kbd {
     
     .panel-actions {
         flex-wrap: wrap;
+    }
+}
+
+/* ==========================================
+   Mobile Tab Bar
+   ========================================== */
+
+/* Hide tab bar on desktop */
+.mobile-tab-bar {
+    display: none;
+}
+
+@media (max-width: 768px) {
+    .mobile-tab-bar {
+        display: flex;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 64px;
+        background: var(--bg-card);
+        border-top: 1px solid var(--border-color);
+        box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.3);
+        z-index: 900;
+        align-items: stretch;
+    }
+
+    .tab-item {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 4px;
+        background: transparent;
+        border: none;
+        color: var(--text-muted);
+        cursor: pointer;
+        font-family: var(--font-sans);
+        font-size: 0.7rem;
+        font-weight: 400;
+        transition: color var(--transition-fast), background var(--transition-fast);
+        padding: 0;
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    .tab-item:active {
+        background: rgba(255, 107, 107, 0.06);
+    }
+
+    .tab-item.active {
+        color: var(--accent-color);
+    }
+
+    .tab-icon {
+        width: 22px;
+        height: 22px;
+        stroke: currentColor;
+        transition: transform var(--transition-fast);
+    }
+
+    .tab-item.active .tab-icon {
+        filter: drop-shadow(0 0 6px rgba(255, 107, 107, 0.5));
+        transform: translateY(-1px);
+    }
+
+    .tab-label {
+        line-height: 1;
+        letter-spacing: 0.02em;
+    }
+
+    /* Ensure toast doesn't overlap tab bar */
+    .toast {
+        bottom: calc(64px + 1rem);
     }
 }
 

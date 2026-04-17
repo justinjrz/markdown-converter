@@ -57,6 +57,9 @@
         // 绑定快捷键
         bindShortcuts();
 
+        // 移动端 Tab 切换
+        initMobileTabs();
+
         console.log('App: 初始化完成');
     }
 
@@ -331,6 +334,78 @@
      */
     function getRenderedHTML() {
         return state.renderedHTML;
+    }
+
+    /**
+     * 移动端 Tab 切换
+     */
+    function initMobileTabs() {
+        const TAB_MOBILE_BREAKPOINT = 768;
+
+        const tabBar = document.getElementById('mobileTabBar');
+        if (!tabBar) return;
+
+        const panels = {
+            editor:  document.getElementById('panel-editor'),
+            preview: document.getElementById('panel-preview'),
+            export:  document.getElementById('panel-export')
+        };
+
+        const tabItems = tabBar.querySelectorAll('.tab-item');
+
+        // 当前激活的 tab
+        let activeTab = 'editor';
+
+        function applyTabLayout() {
+            if (window.innerWidth > TAB_MOBILE_BREAKPOINT) {
+                // 桌面端：移除所有隐藏类，让 CSS grid 正常工作
+                Object.values(panels).forEach(function(panel) {
+                    if (panel) panel.classList.remove('tab-hidden');
+                });
+                return;
+            }
+
+            // 移动端：只显示激活面板
+            Object.entries(panels).forEach(function(entry) {
+                var name = entry[0];
+                var panel = entry[1];
+                if (!panel) return;
+                if (name === activeTab) {
+                    panel.classList.remove('tab-hidden');
+                } else {
+                    panel.classList.add('tab-hidden');
+                }
+            });
+        }
+
+        function switchTab(tabName) {
+            if (!panels[tabName]) return;
+            activeTab = tabName;
+
+            // 更新 tab item 激活状态
+            tabItems.forEach(function(item) {
+                if (item.getAttribute('data-tab') === tabName) {
+                    item.classList.add('active');
+                } else {
+                    item.classList.remove('active');
+                }
+            });
+
+            applyTabLayout();
+        }
+
+        // 绑定点击事件
+        tabItems.forEach(function(item) {
+            item.addEventListener('click', function() {
+                switchTab(item.getAttribute('data-tab'));
+            });
+        });
+
+        // 初始应用
+        applyTabLayout();
+
+        // 响应窗口尺寸变化（旋转屏幕等）
+        window.addEventListener('resize', applyTabLayout);
     }
 
     // DOM 加载完成后初始化

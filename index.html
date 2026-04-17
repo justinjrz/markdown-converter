@@ -70,7 +70,7 @@
         <!-- Main Content -->
         <main class="main-content">
             <!-- Editor Panel -->
-            <section class="panel editor-panel">
+            <section class="panel editor-panel" id="panel-editor">
                 <div class="panel-header">
                     <h2>
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -255,7 +255,7 @@ $$
             </section>
 
             <!-- Preview Panel -->
-            <section class="panel preview-panel">
+            <section class="panel preview-panel" id="panel-preview">
                 <div class="panel-header">
                     <h2>
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -286,7 +286,7 @@ $$
             </section>
 
             <!-- Actions Panel -->
-            <section class="panel actions-panel">
+            <section class="panel actions-panel" id="panel-export">
                 <div class="panel-header">
                     <h2>
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -350,6 +350,32 @@ $$
         <footer class="footer">
         </footer>
     </div>
+
+    <!-- Mobile Tab Bar -->
+    <nav class="mobile-tab-bar" id="mobileTabBar" aria-label="移动端导航">
+        <button class="tab-item active" data-tab="editor" aria-label="编辑器">
+            <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+            </svg>
+            <span class="tab-label">编辑器</span>
+        </button>
+        <button class="tab-item" data-tab="preview" aria-label="预览">
+            <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                <circle cx="12" cy="12" r="3"></circle>
+            </svg>
+            <span class="tab-label">预览</span>
+        </button>
+        <button class="tab-item" data-tab="export" aria-label="导出">
+            <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="7 10 12 15 17 10"></polyline>
+                <line x1="12" y1="15" x2="12" y2="3"></line>
+            </svg>
+            <span class="tab-label">导出</span>
+        </button>
+    </nav>
 
     <!-- Third-party Libraries -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.0/marked.min.js"></script>
