@@ -1185,7 +1185,10 @@ kbd {
         -webkit-flex-direction: column !important;
         flex-direction: column !important;
         overflow-x: hidden;
+        overflow-y: auto;
         width: 100%;
+        height: auto !important;
+        max-height: none !important;
     }
 
     .export-section {
@@ -1194,7 +1197,15 @@ kbd {
         max-width: 100% !important;
         -webkit-box-sizing: border-box;
         box-sizing: border-box;
-        flex-shrink: 0 !important;
+        height: auto !important;
+        flex: 0 0 auto !important;
+    }
+
+    /* 导出面板本身可滚动，不限制高度 */
+    .actions-panel {
+        height: auto !important;
+        max-height: calc(100vh - 160px - 64px);
+        overflow-y: auto;
     }
 }
 
