@@ -13,7 +13,8 @@ const Editor = (function() {
         fileInput: null,
         clearBtn: null,
         dropZone: null,
-        dropHint: null
+        dropHint: null,
+        lineNumbers: null
     };
 
     // 配置
@@ -39,6 +40,7 @@ const Editor = (function() {
         elements.clearBtn = document.getElementById('clearBtn');
         elements.dropZone = document.getElementById('dropZone');
         elements.dropHint = document.getElementById('dropHint');
+        elements.lineNumbers = document.getElementById('lineNumbers');
 
         if (!elements.input) {
             console.error('Editor: 找不到编辑器元素');
@@ -54,6 +56,11 @@ const Editor = (function() {
         // 触发初始渲染
         triggerChange();
 
+        // 初始化行号
+        if (elements.lineNumbers) {
+            updateLineNumbers();
+        }
+
         console.log('Editor: 初始化完成');
     }
 
@@ -63,6 +70,13 @@ const Editor = (function() {
     function bindEvents() {
         // 输入事件 - 使用防抖
         elements.input.addEventListener('input', debounce(handleInput, 150));
+
+        // 行号同步
+        if (elements.lineNumbers) {
+            elements.input.addEventListener('input', updateLineNumbers);
+            elements.input.addEventListener('scroll', syncLineNumbersScroll);
+            updateLineNumbers();
+        }
 
         // 文件上传
         if (elements.fileInput) {
@@ -97,6 +111,7 @@ const Editor = (function() {
         triggerChange();
     }
 
+
     /**
      * 处理文件选择
      * @param {Event} event 
@@ -120,6 +135,7 @@ const Editor = (function() {
         elements.input.value = '';
         saveContent();
         triggerChange();
+        updateLineNumbers();
         showToast('内容已清空', 'info');
     }
 
@@ -293,7 +309,42 @@ const Editor = (function() {
             elements.input.value = content;
             saveContent();
             triggerChange();
+            updateLineNumbers();
         }
+    }
+
+    /**
+     * 更新行号列内容
+     */
+    function updateLineNumbers() {
+        if (!elements.lineNumbers || !elements.input) return;
+        const lineCount = elements.input.value.split('\n').length;
+        const current = elements.lineNumbers.children.length;
+        if (lineCount === current) return;
+
+        if (lineCount > current) {
+            const fragment = document.createDocumentFragment();
+            for (let i = current + 1; i <= lineCount; i++) {
+                const span = document.createElement('span');
+                span.textContent = i;
+                fragment.appendChild(span);
+            }
+            elements.lineNumbers.appendChild(fragment);
+        } else {
+            while (elements.lineNumbers.children.length > lineCount) {
+                elements.lineNumbers.removeChild(elements.lineNumbers.lastChild);
+            }
+        }
+
+        syncLineNumbersScroll();
+    }
+
+    /**
+     * 同步行号列的滚动偏移
+     */
+    function syncLineNumbersScroll() {
+        if (!elements.lineNumbers || !elements.input) return;
+        elements.lineNumbers.scrollTop = elements.input.scrollTop;
     }
 
     /**

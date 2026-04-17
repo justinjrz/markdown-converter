@@ -318,9 +318,33 @@ body::before {
     overflow: hidden;
 }
 
+/* Line Numbers */
+.line-numbers {
+    width: 40px;
+    flex-shrink: 0;
+    padding: 1.25rem 0;
+    background: transparent;
+    border-right: 1px solid var(--border-color);
+    color: var(--text-muted);
+    font-family: var(--font-mono);
+    font-size: 0.9rem;
+    line-height: 1.7;
+    text-align: right;
+    padding-right: 8px;
+    padding-left: 4px;
+    user-select: none;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+.line-numbers span {
+    display: block;
+}
+
 #markdownInput {
     flex: 1;
-    width: 100%;
+    width: 0;
+    min-width: 0;
     padding: 1.25rem;
     background: transparent;
     border: none;
@@ -791,11 +815,20 @@ body::before {
 }
 
 .upload-btn:hover,
-.clear-btn:hover,
 .theme-toggle:hover {
     background: var(--bg-secondary);
     color: var(--text-primary);
     border-color: var(--border-light);
+}
+
+.clear-btn {
+    color: #e88080;
+}
+
+.clear-btn:hover {
+    background: rgba(245, 101, 101, 0.08);
+    color: #f56565;
+    border-color: rgba(245, 101, 101, 0.4);
 }
 
 .upload-btn svg,
@@ -836,13 +869,13 @@ body::before {
 }
 
 .pdf-btn {
-    background: linear-gradient(135deg, var(--primary-light) 0%, var(--primary-color) 100%);
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
 }
 
 .pdf-btn:hover {
     transform: translateY(-2px);
-    box-shadow: var(--shadow-md), 0 0 20px rgba(44, 83, 100, 0.3);
+    box-shadow: var(--shadow-md), 0 0 20px rgba(102, 126, 234, 0.4);
 }
 
 .image-btn {
