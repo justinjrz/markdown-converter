@@ -1168,7 +1168,7 @@ kbd {
 
     /* 移动端隐藏快捷键说明 */
     .tips-section {
-        display: none;
+        display: none !important;
     }
 
     /* 移动端 header 不用 relative 定位，主题按钮 static 即可 */
@@ -1176,9 +1176,25 @@ kbd {
         position: static;
     }
 
-    /* 防止 actions-content 横向溢出 */
+    /* 强制导出面板纵向排列，修复微信内置浏览器兼容问题 */
     .actions-content {
+        display: -webkit-box !important;
+        display: -webkit-flex !important;
+        display: flex !important;
+        -webkit-box-orient: vertical !important;
+        -webkit-flex-direction: column !important;
+        flex-direction: column !important;
         overflow-x: hidden;
+        width: 100%;
+    }
+
+    .export-section {
+        width: 100% !important;
+        min-width: 0 !important;
+        max-width: 100% !important;
+        -webkit-box-sizing: border-box;
+        box-sizing: border-box;
+        flex-shrink: 0 !important;
     }
 }
 
