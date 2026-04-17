@@ -8,8 +8,7 @@
 
     // 应用状态
     const state = {
-        renderedHTML: '',
-        isPreviewLight: false
+        renderedHTML: ''
     };
 
     // DOM 元素
@@ -17,7 +16,6 @@
         previewContent: null,
         exportPdfBtn: null,
         exportImageBtn: null,
-        themeToggle: null,
         previewPanel: null,
         globalThemeToggle: null
     };
@@ -32,7 +30,6 @@
         elements.previewContent = document.getElementById('previewContent');
         elements.exportPdfBtn = document.getElementById('exportPdfBtn');
         elements.exportImageBtn = document.getElementById('exportImageBtn');
-        elements.themeToggle = document.getElementById('themeToggle');
         elements.previewPanel = document.querySelector('.preview-panel');
         elements.globalThemeToggle = document.getElementById('globalThemeToggle');
 
@@ -47,9 +44,6 @@
 
         // 绑定导出按钮事件
         bindExportEvents();
-
-        // 绑定主题切换
-        bindThemeToggle();
 
         // 绑定全局主题切换
         bindGlobalThemeToggle();
@@ -220,6 +214,16 @@
         
         // 更新 highlight.js 主题
         updateHighlightTheme(theme);
+
+        // 同步预览区主题
+        const previewPanel = document.querySelector('.preview-panel');
+        if (previewPanel) {
+            if (theme === 'light') {
+                previewPanel.classList.add('preview-light');
+            } else {
+                previewPanel.classList.remove('preview-light');
+            }
+        }
     }
 
     /**
@@ -255,6 +259,15 @@
                 
                 // 切换主题
                 document.documentElement.setAttribute('data-theme', newTheme);
+
+                // 预览区跟随全局主题
+                if (elements.previewPanel) {
+                    if (newTheme === 'light') {
+                        elements.previewPanel.classList.add('preview-light');
+                    } else {
+                        elements.previewPanel.classList.remove('preview-light');
+                    }
+                }
                 
                 // 保存到本地存储
                 localStorage.setItem('markdown_converter_theme', newTheme);
@@ -283,26 +296,6 @@
                             }
                         }
                     });
-                }
-            });
-        }
-    }
-
-    /**
-     * 绑定预览主题切换
-     */
-    function bindThemeToggle() {
-        if (elements.themeToggle && elements.previewPanel) {
-            elements.themeToggle.addEventListener('click', function() {
-                state.isPreviewLight = !state.isPreviewLight;
-                
-                if (state.isPreviewLight) {
-                    elements.previewPanel.classList.add('preview-light');
-                    elements.previewPanel.querySelector('.preview-wrapper').style.background = '#ffffff';
-                } else {
-                    elements.previewPanel.classList.remove('preview-light');
-                    const globalTheme = document.documentElement.getAttribute('data-theme') || 'dark';
-                    elements.previewPanel.querySelector('.preview-wrapper').style.background = '';
                 }
             });
         }
